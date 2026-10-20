@@ -81,6 +81,9 @@ pipeline {
                       deployment/${K8S_DEPLOYMENT} \
                       ${K8S_CONTAINER}=${IMAGE_NAME}:${BUILD_NUMBER}
 
+                    kubectl set env deployment/${K8S_DEPLOYMENT} \
+                    RENDER_GIT_COMMIT=${GIT_COMMIT}
+
                     kubectl rollout status \
                       deployment/${K8S_DEPLOYMENT} \
                       --timeout=180s
