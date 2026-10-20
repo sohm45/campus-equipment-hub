@@ -3,7 +3,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'YOUR_DOCKERHUB_USERNAME/campus-equipment-hub'
+        IMAGE_NAME = 'soham045/campus-equipment-hub'
         K8S_DEPLOYMENT = 'campus-equipment-hub'
         K8S_CONTAINER = 'campus-equipment-hub'
     }
