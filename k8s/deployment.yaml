@@ -1,0 +1,21 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: campus-equipment-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: campus-equipment-hub
+  template:
+    metadata:
+      labels:
+        app: campus-equipment-hub
+    spec:
+      containers:
+        - name: campus-equipment-hub
+          image: YOUR_DOCKERHUB_USERNAME/campus-equipment-hub:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
