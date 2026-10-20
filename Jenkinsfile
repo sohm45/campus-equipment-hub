@@ -6,6 +6,7 @@ pipeline {
         IMAGE_NAME = 'soham045/campus-equipment-hub'
         K8S_DEPLOYMENT = 'campus-equipment-hub'
         K8S_CONTAINER = 'campus-equipment-hub'
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
     }
 
     stages {
@@ -53,6 +54,8 @@ pipeline {
                     )
                 ]) {
                     sh '''
+                        set -e
+
                         echo "$DH_PASSWORD" | docker login \
                           -u "$DH_USER" --password-stdin
 
@@ -68,6 +71,10 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 sh '''
+                    set -e
+
+                    kubectl get nodes
+
                     kubectl apply -f k8s/
 
                     kubectl set image \
@@ -84,9 +91,25 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh '''
+                    set -e
+
+                    echo "Checking Kubernetes pods..."
                     kubectl get pods
+
+                    echo "Checking deployments..."
                     kubectl get deployments
+
+                    echo "Checking services..."
                     kubectl get services
+
+                    echo "Checking application health..."
+                    kubectl run campus-hub-health-check \
+                      --image=curlimages/curl:latest \
+                      --restart=Never \
+                      --rm -i \
+                      --command -- \
+                      curl --fail --silent --show-error \
+                      http://campus-equipment-hub-service:3000/health
                 '''
             }
         }
@@ -95,9 +118,15 @@ pipeline {
     post {
         success {
             echo 'CI/CD pipeline completed successfully!'
+            echo "Docker image: ${IMAGE_NAME}:${BUILD_NUMBER}"
         }
+
         failure {
             echo 'Pipeline failed. Check the stage logs.'
+        }
+
+        always {
+            echo 'Pipeline execution finished.'
         }
     }
 }
